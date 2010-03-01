@@ -1,19 +1,19 @@
-def herogoo
-  return @herogoo if defined? @herogoo
-  @herogoo = {}
+def herogit
+  return @herogit if defined? @herogit
+  @herogit = {}
 
   `git config --get-regexp '^heroku\.'`.each_line do |line|
     key, value = line.chomp.split /\s+/
-    @herogoo[key] = value
+    @herogit[key] = value
   end
 
-  @herogoo
+  @herogit
 end
 
 class Heroku::Command::Auth
   def get_credentials_with_git
     if File.directory? ".git"
-      creds = herogoo.values_at "heroku.email", "heroku.password"
+      creds = herogit.values_at "heroku.email", "heroku.password"
       @credentials = creds if 2 == creds.size
     end
 
@@ -28,7 +28,7 @@ class Heroku::Command::Base
   def extract_app_in_dir_with_git dir
     Dir.chdir dir do
       if /^\* (\S+)/ =~ `git branch`
-        app = herogoo["heroku.app.#$1"]
+        app = herogit["heroku.app.#$1"]
         return app if app
       end
     end
