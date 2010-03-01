@@ -4,7 +4,7 @@ def herogit
 
   `git config --get-regexp '^heroku\.'`.each_line do |line|
     key, value = line.chomp.split /\s+/
-    @herogit[key] = value
+    @herogit[key] = Array(value).join " "
   end
 
   @herogit
