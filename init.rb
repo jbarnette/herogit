@@ -13,7 +13,7 @@ end
 class Heroku::Command::Auth
   def get_credentials_with_git
     if File.directory? ".git"
-      creds = herogit.values_at "heroku.email", "heroku.password"
+      creds = herogit.values_at("heroku.email", "heroku.password").compact
       @credentials = creds if 2 == creds.size
     end
 
