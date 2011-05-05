@@ -10,18 +10,31 @@ def herogit
   @herogit
 end
 
-class Heroku::Command::Auth
-  def get_credentials_with_git
-    if File.directory? ".git"
-      creds = herogit.values_at("heroku.email", "heroku.password").compact
-      @credentials = creds if 2 == creds.size
-    end
+module Herogit
+  module Auth
+    def get_credentials_with_git
+      if File.directory? ".git"
+        creds = herogit.values_at("heroku.email", "heroku.password").compact
+        @credentials = creds if 2 == creds.size
+      end
 
-    get_credentials_without_git
+      get_credentials_without_git
+    end
   end
 
-  alias_method :get_credentials_without_git, :get_credentials
-  alias_method :get_credentials, :get_credentials_with_git
+  if defined? Heroku::Auth # heroku > v2.0
+    Heroku::Auth.extend(Herogit::Auth)
+    class << Heroku::Auth
+      alias_method :get_credentials_without_git, :get_credentials
+      alias_method :get_credentials, :get_credentials_with_git
+    end
+  else
+    Heroku::Command::Auth.class_eval do 
+      include Herogit::Auth
+      alias_method :get_credentials_without_git, :get_credentials
+      alias_method :get_credentials, :get_credentials_with_git
+    end
+  end
 end
 
 class Heroku::Command::Base
